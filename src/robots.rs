@@ -47,6 +47,28 @@ pub struct Robot {
 }
 
 impl Robot {
+    #[cfg(test)]
+    pub fn new_basic_robot() -> Self {
+        let robot_position = RobotPosition {
+            coordinates: Coordinates { x: 1, y: 1 },
+            orientation: Orientation::East,
+        };
+        let robot_commands = vec![
+            RobotCommands::Right,
+            RobotCommands::Forward,
+            RobotCommands::Right,
+            RobotCommands::Forward,
+            RobotCommands::Right,
+            RobotCommands::Forward,
+            RobotCommands::Right,
+            RobotCommands::Forward,
+        ];
+        Robot {
+            robot_commands,
+            position: robot_position,
+        }
+    }
+
     pub fn new() -> Self {
         Robot {
             position: RobotPosition {
@@ -82,6 +104,13 @@ impl Robot {
         println!("robot update {:?}", robot_update);
         robot_update
     }
+
+    pub fn process_all_commands(mut self) -> Self {
+        while !self.robot_commands.is_empty() {
+            self = self.process_robot_command()
+        }
+        self
+    }
 }
 
 #[cfg(test)]
@@ -115,6 +144,13 @@ mod test {
         let robot = Robot::new();
         let robot_with_commands = robot.update_commands(vec![command]);
         let processed_robot = robot_with_commands.process_robot_command();
+        insta::assert_debug_snapshot!(processed_robot)
+    }
+
+    #[test]
+    fn test_process_all_commands() {
+        let new_basic_robot = Robot::new_basic_robot();
+        let processed_robot = new_basic_robot.process_all_commands();
         insta::assert_debug_snapshot!(processed_robot)
     }
 }
