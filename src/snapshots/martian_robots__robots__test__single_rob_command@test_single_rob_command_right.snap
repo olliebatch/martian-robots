@@ -1,18 +1,16 @@
 ---
 source: src/robots.rs
-assertion_line: 180
+assertion_line: 186
 expression: processed_robot
 ---
-(
-    Robot {
-        position: RobotPosition {
-            coordinates: Coordinates {
-                x: 0,
-                y: 0,
-            },
-            orientation: East,
+Robot {
+    position: RobotPosition {
+        coordinates: Coordinates {
+            x: 0,
+            y: 0,
         },
-        robot_commands: [],
+        orientation: East,
     },
-    Alive,
-)
+    robot_commands: [],
+    robot_status: Alive,
+}

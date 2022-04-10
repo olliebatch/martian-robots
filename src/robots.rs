@@ -61,6 +61,7 @@ impl fmt::Display for RobotPosition {
 pub struct Robot {
     pub position: RobotPosition,
     pub robot_commands: Vec<RobotCommands>,
+    pub robot_status: RobotStatus,
 }
 
 impl Robot {
@@ -83,6 +84,7 @@ impl Robot {
         Robot {
             robot_commands,
             position: robot_position,
+            robot_status: RobotStatus::Alive,
         }
     }
 
@@ -93,6 +95,7 @@ impl Robot {
                 orientation: Orientation::North,
             },
             robot_commands: vec![],
+            robot_status: RobotStatus::Alive,
         }
     }
 
@@ -100,6 +103,7 @@ impl Robot {
         Robot {
             position: robot_position,
             robot_commands: self.robot_commands,
+            robot_status: self.robot_status,
         }
     }
 
@@ -107,36 +111,33 @@ impl Robot {
         Robot {
             position: self.position,
             robot_commands,
+            robot_status: self.robot_status,
         }
     }
 
-    pub fn process_robot_command(mut self, coordinate_limit: &Coordinates) -> (Self, RobotStatus) {
+    pub fn update_status(self, robot_status: RobotStatus) -> Self {
+        Robot {
+            position: self.position,
+            robot_commands: self.robot_commands,
+            robot_status,
+        }
+    }
+
+    pub fn process_robot_command(mut self, coordinate_limit: &Coordinates) -> Self {
         let command = self.robot_commands.first().unwrap();
         let (new_position, robot_status) = command.process(self.position, coordinate_limit);
         self.robot_commands.remove(0);
 
-        (
-            Robot {
-                position: new_position,
-                robot_commands: self.robot_commands,
-            },
+        Robot {
+            position: new_position,
+            robot_commands: self.robot_commands,
             robot_status,
-        )
+        }
     }
 
     pub fn process_all_commands(mut self, coordinate_limit: &Coordinates) -> Self {
-        while !self.robot_commands.is_empty() {
-            let (robot, robot_status) = self.process_robot_command(coordinate_limit);
-
-            self = robot;
-            match robot_status {
-                RobotStatus::Alive => {
-                    continue;
-                }
-                RobotStatus::Lost => {
-                    break;
-                }
-            }
+        while !self.robot_commands.is_empty() && self.robot_status == RobotStatus::Alive {
+            self = self.process_robot_command(coordinate_limit);
         }
         self
     }

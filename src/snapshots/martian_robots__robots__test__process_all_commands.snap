@@ -1,6 +1,6 @@
 ---
 source: src/robots.rs
-assertion_line: 184
+assertion_line: 195
 expression: processed_robot
 ---
 Robot {
@@ -12,4 +12,5 @@ Robot {
         orientation: East,
     },
     robot_commands: [],
+    robot_status: Alive,
 }

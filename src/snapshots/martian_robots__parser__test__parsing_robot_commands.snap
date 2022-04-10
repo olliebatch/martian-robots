@@ -27,5 +27,6 @@ expression: robot_commands
             Left,
             Left,
         ],
+        robot_status: Alive,
     },
 ]

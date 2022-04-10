@@ -22,6 +22,7 @@ expression: robots
             Right,
             Forward,
         ],
+        robot_status: Alive,
     },
     Robot {
         position: RobotPosition {
@@ -46,5 +47,6 @@ expression: robots
             Left,
             Left,
         ],
+        robot_status: Alive,
     },
 ]

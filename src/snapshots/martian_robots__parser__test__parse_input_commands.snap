@@ -32,6 +32,7 @@ Command {
                 Left,
                 Left,
             ],
+            robot_status: Alive,
         },
     ],
 }

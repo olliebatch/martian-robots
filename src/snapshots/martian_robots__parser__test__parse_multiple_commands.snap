@@ -27,6 +27,7 @@ Command {
                 Right,
                 Forward,
             ],
+            robot_status: Alive,
         },
         Robot {
             position: RobotPosition {
@@ -51,6 +52,7 @@ Command {
                 Left,
                 Left,
             ],
+            robot_status: Alive,
         },
         Robot {
             position: RobotPosition {
@@ -72,6 +74,7 @@ Command {
                 Forward,
                 Left,
             ],
+            robot_status: Alive,
         },
     ],
 }
