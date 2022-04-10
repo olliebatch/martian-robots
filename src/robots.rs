@@ -63,19 +63,32 @@ impl Robot {
             robot_commands: self.robot_commands,
         }
     }
+
     pub fn update_commands(self, robot_commands: Vec<RobotCommands>) -> Self {
         Robot {
             position: self.position,
             robot_commands,
         }
     }
+
+    pub fn process_robot_command(mut self) -> Self {
+        let command = self.robot_commands.first().unwrap();
+        let new_position = command.process(self.position);
+        self.robot_commands.remove(0);
+        let robot_update = Robot {
+            position: new_position,
+            robot_commands: self.robot_commands,
+        };
+        println!("robot update {:?}", robot_update);
+        robot_update
+    }
 }
 
 #[cfg(test)]
 mod test {
 
-    use crate::mission_instructions::{Coordinates, Orientation};
-    use crate::robots::RobotPosition;
+    use crate::mission_instructions::{Coordinates, Orientation, RobotCommands};
+    use crate::robots::{Robot, RobotPosition};
     use rstest::*;
 
     #[rstest]
@@ -91,5 +104,17 @@ mod test {
 
         let moved = robot_position.move_forward();
         insta::assert_debug_snapshot!(moved)
+    }
+
+    #[rstest]
+    #[case(RobotCommands::Forward)]
+    #[case(RobotCommands::Left)]
+    #[case(RobotCommands::Right)]
+
+    fn test_single_rob_command(#[case] command: RobotCommands) {
+        let robot = Robot::new();
+        let robot_with_commands = robot.update_commands(vec![command]);
+        let processed_robot = robot_with_commands.process_robot_command();
+        insta::assert_debug_snapshot!(processed_robot)
     }
 }

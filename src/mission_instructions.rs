@@ -1,4 +1,4 @@
-use crate::robots::Robot;
+use crate::robots::{Robot, RobotPosition};
 use anyhow::anyhow;
 use std::str::FromStr;
 
@@ -81,6 +81,22 @@ pub enum RobotCommands {
     Left,
     Right,
     Forward,
+}
+
+impl RobotCommands {
+    pub fn process(&self, robot_position: RobotPosition) -> RobotPosition {
+        match self {
+            RobotCommands::Right => {
+                let new_orientation = robot_position.orientation.change_right();
+                robot_position.update_orientation(new_orientation)
+            }
+            RobotCommands::Left => {
+                let new_orientation = robot_position.orientation.change_left();
+                robot_position.update_orientation(new_orientation)
+            }
+            RobotCommands::Forward => robot_position.move_forward(),
+        }
+    }
 }
 
 impl FromStr for RobotCommands {
