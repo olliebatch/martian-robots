@@ -64,11 +64,14 @@ fn generate_robots_from_strs(trimmed_strings: Vec<String>) -> Result<Vec<Robot>,
                 };
                 robot = robot.set_start_position(robot_position);
             } else {
-                let robot_commands: Result<Vec<RobotCommands>, anyhow::Error> = robot_info
+                let robot_commands: Vec<RobotCommands> = robot_info
                     .chars()
                     .map(|test| RobotCommands::from_str(test.to_string().as_str()))
-                    .collect();
-                robot = robot.update_commands(robot_commands?);
+                    .collect::<Result<Vec<RobotCommands>, anyhow::Error>>()?;
+                if robot_commands.len() > 100 {
+                    return Err(anyhow!("Too many robot commands provided"));
+                }
+                robot = robot.update_commands(robot_commands);
             }
         }
         robots.push(robot)
