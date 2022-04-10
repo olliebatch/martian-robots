@@ -3,8 +3,8 @@ use std::str::FromStr;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Coordinates {
-    x: i32,
-    y: i32,
+    pub x: i32,
+    pub y: i32,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -44,7 +44,32 @@ pub struct Command {
 #[derive(Debug, Clone, PartialEq)]
 pub struct RobotInfo {
     pub start_position: RobotPosition,
-    pub robot_commands: RobotCommands,
+    pub robot_commands: Vec<RobotCommands>,
+}
+
+impl RobotInfo {
+    pub fn new() -> Self {
+        RobotInfo {
+            start_position: RobotPosition {
+                coordinates: Coordinates { x: 0, y: 0 },
+                orientation: Orientation::North,
+            },
+            robot_commands: vec![],
+        }
+    }
+
+    pub fn set_start_position(self, robot_position: RobotPosition) -> Self {
+        RobotInfo {
+            start_position: robot_position,
+            robot_commands: self.robot_commands,
+        }
+    }
+    pub fn update_commands(self, robot_commands: Vec<RobotCommands>) -> Self {
+        RobotInfo {
+            start_position: self.start_position,
+            robot_commands,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -75,9 +100,22 @@ pub enum RobotCommands {
     Forward,
 }
 
+impl FromStr for RobotCommands {
+    type Err = anyhow::Error;
+
+    fn from_str(input: &str) -> Result<Self, Self::Err> {
+        match input {
+            "L" => Ok(RobotCommands::Left),
+            "R" => Ok(RobotCommands::Right),
+            "F" => Ok(RobotCommands::Forward),
+            _ => Err(anyhow!("Error matching possible Robot Commands")),
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
-    use crate::mission_instructions::{Coordinates, Orientation};
+    use crate::mission_instructions::{Coordinates, Orientation, RobotCommands};
     use anyhow::anyhow;
     use assert_matches::assert_matches;
     use std::str::FromStr;
@@ -118,5 +156,15 @@ mod test {
     fn test_orientation_err_from_str() {
         let p = Orientation::from_str("Y");
         assert!(p.is_err())
+    }
+
+    #[rstest]
+    #[case("F", RobotCommands::Forward)]
+    #[case("L", RobotCommands::Left)]
+    #[case("R", RobotCommands::Right)]
+    fn test_robot_commands(#[case] input: &str, #[case] expected_command: RobotCommands) {
+        let command = RobotCommands::from_str(input);
+
+        assert_eq!(command.unwrap(), expected_command);
     }
 }

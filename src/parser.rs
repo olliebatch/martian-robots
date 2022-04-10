@@ -1,4 +1,6 @@
-use crate::mission_instructions::{Coordinates, Orientation, RobotPosition};
+use crate::mission_instructions::{
+    Coordinates, Orientation, RobotCommands, RobotInfo, RobotPosition,
+};
 use anyhow::anyhow;
 use itertools::Itertools;
 use std::error;
@@ -18,26 +20,13 @@ fn parse_input_to_command(commands: &str) -> Result<(), Box<dyn error::Error>> {
     Ok(())
 }
 
-fn parse_robot_commands(lines: Lines) -> Result<(), anyhow::Error> {
+fn parse_robot_commands(lines: Lines) -> Result<Vec<RobotInfo>, anyhow::Error> {
     let trimmed_lines = remove_lines_and_whitespace(lines);
 
     // assume current structure will stay the same with 2 lines = one robot
-    for chunk in &trimmed_lines.into_iter().chunks(2) {
-        for (index, robot_info) in chunk.into_iter().enumerate() {
-            if index == 0 {
-                let coordinates = Coordinates::from_str(&robot_info[..2])?;
-                let orientation = Orientation::from_str(&robot_info[2..3])?;
-                let robot_position = RobotPosition {
-                    coordinates,
-                    orientation,
-                };
-            } else {
-                println!("index 1{:?}", robot_info);
-            }
-        }
-    }
+    let robot_infos = generate_robots_from_strs(trimmed_lines)?;
 
-    Ok(())
+    Ok(robot_infos)
 }
 
 fn remove_lines_and_whitespace(lines: Lines) -> Vec<String> {
@@ -55,9 +44,40 @@ fn remove_lines_and_whitespace(lines: Lines) -> Vec<String> {
     removed_lines
 }
 
+fn generate_robots_from_strs(
+    trimmed_strings: Vec<String>,
+) -> Result<Vec<RobotInfo>, anyhow::Error> {
+    let mut robots = vec![];
+    for chunk in &trimmed_strings.into_iter().chunks(2) {
+        let mut robot = RobotInfo::new();
+        for (index, robot_info) in chunk.into_iter().enumerate() {
+            if index == 0 {
+                let coordinates = Coordinates::from_str(&robot_info[..2])?;
+                let orientation = Orientation::from_str(&robot_info[2..3])?;
+                let robot_position = RobotPosition {
+                    coordinates,
+                    orientation,
+                };
+                robot = robot.set_start_position(robot_position);
+            } else {
+                let robot_commands: Result<Vec<RobotCommands>, anyhow::Error> = robot_info
+                    .chars()
+                    .map(|test| RobotCommands::from_str(test.to_string().as_str()))
+                    .collect();
+                robot = robot.update_commands(robot_commands?);
+            }
+        }
+        robots.push(robot)
+    }
+
+    Ok(robots)
+}
+
 #[cfg(test)]
 mod test {
-    use crate::parser::{parse_robot_commands, remove_lines_and_whitespace};
+    use crate::parser::{
+        generate_robots_from_strs, parse_robot_commands, remove_lines_and_whitespace,
+    };
 
     #[test]
     fn test_parsing_robot_commands() {
@@ -66,8 +86,23 @@ mod test {
         FRRFLLFFRRFLL";
         let lines = str.lines();
 
-        parse_robot_commands(lines).unwrap()
-        //todo update when its returning
+        let robot_commands = parse_robot_commands(lines).unwrap();
+
+        insta::assert_debug_snapshot!(robot_commands)
+    }
+
+    #[test]
+    fn test_parsing_multiple_robot_commands() {
+        let str = "
+        1 1 E
+        RFRFRFRF
+        3 2 N
+        FRRFLLFFRRFLL";
+        let lines = str.lines();
+
+        let robot_commands = parse_robot_commands(lines).unwrap();
+
+        insta::assert_debug_snapshot!(robot_commands)
     }
 
     #[test]
@@ -95,5 +130,27 @@ mod test {
         let expected = vec!["32N".to_string(), "FRRFLLFFRRFLL".to_string()];
 
         assert_eq!(removed_lines, expected)
+    }
+
+    #[test]
+    fn test_generate_robots_from_strs() {
+        let robots =
+            generate_robots_from_strs(vec!["32N".to_string(), "FRRFLLFFRRFLL".to_string()])
+                .unwrap();
+
+        insta::assert_debug_snapshot!(robots)
+    }
+
+    #[test]
+    fn test_generate_robots_from_strs_two_robots() {
+        let robots = generate_robots_from_strs(vec![
+            "11E".to_string(),
+            "RFRFRFRF".to_string(),
+            "32N".to_string(),
+            "FRRFLLFFRRFLL".to_string(),
+        ])
+        .unwrap();
+
+        insta::assert_debug_snapshot!(robots)
     }
 }

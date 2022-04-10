@@ -1,0 +1,50 @@
+---
+source: src/parser.rs
+assertion_line: 105
+expression: robot_commands
+---
+[
+    RobotInfo {
+        start_position: RobotPosition {
+            coordinates: Coordinates {
+                x: 1,
+                y: 1,
+            },
+            orientation: East,
+        },
+        robot_commands: [
+            Right,
+            Forward,
+            Right,
+            Forward,
+            Right,
+            Forward,
+            Right,
+            Forward,
+        ],
+    },
+    RobotInfo {
+        start_position: RobotPosition {
+            coordinates: Coordinates {
+                x: 3,
+                y: 2,
+            },
+            orientation: North,
+        },
+        robot_commands: [
+            Forward,
+            Right,
+            Right,
+            Forward,
+            Left,
+            Left,
+            Forward,
+            Forward,
+            Right,
+            Right,
+            Forward,
+            Left,
+            Left,
+        ],
+    },
+]
