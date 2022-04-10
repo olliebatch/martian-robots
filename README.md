@@ -20,9 +20,14 @@ You can run the tests that i've provided by using.
 
 
 # Things i would have liked to add
-Would have added a github ci with actions to give a basic implementation where it could check against some tests
+Would have added a github ci with actions to give a basic implementation where it could check against some tests.
+<br>
 Some nicer handling with wrong input commands.
+<br>
 Some Enum based errors for rust
+<br>
 Check on other rover positions. E.G is the rover still on the grid after its moved?
+<br>
 Individual processing. Currently these robots are tied together if you give a bad command for one then it will affect all of them.
+<br>
 Handle robots that aren't dropped with any movements.
