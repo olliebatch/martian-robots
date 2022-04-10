@@ -1,3 +1,6 @@
+mod mission_instructions;
+mod parser;
+
 use std::io::{self, Read};
 
 fn main() -> Result<(), anyhow::Error> {
