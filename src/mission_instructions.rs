@@ -1,9 +1,10 @@
 use crate::robots::{Robot, RobotPosition, RobotStatus};
 use anyhow::anyhow;
+use std::collections::HashSet;
 use std::fmt;
 use std::str::FromStr;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Coordinates {
     pub x: i32,
     pub y: i32,
@@ -48,7 +49,7 @@ pub struct Command {
     pub robots: Vec<Robot>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum Orientation {
     North,
     South,
@@ -112,6 +113,7 @@ impl RobotCommands {
         &self,
         robot_position: RobotPosition,
         coordinate_limit: &Coordinates,
+        scent_tracker: &mut HashSet<RobotPosition>,
     ) -> (RobotPosition, RobotStatus) {
         match self {
             RobotCommands::Right => {
@@ -129,9 +131,14 @@ impl RobotCommands {
                 )
             }
             RobotCommands::Forward => {
+                let scent_check = robot_position.check_scent(scent_tracker);
+                if scent_check {
+                    return (robot_position, RobotStatus::Alive);
+                }
                 let new_position = robot_position.move_forward();
                 let fallen_off_grid = new_position.coordinates.fallen_off_grid(coordinate_limit);
                 if fallen_off_grid {
+                    robot_position.add_scent(scent_tracker);
                     return (robot_position, RobotStatus::Lost);
                 }
                 (new_position, RobotStatus::Alive)
@@ -156,8 +163,11 @@ impl FromStr for RobotCommands {
 #[cfg(test)]
 mod test {
     use crate::mission_instructions::{Coordinates, Orientation, RobotCommands};
+    use std::collections::HashSet;
     use std::str::FromStr;
 
+    use crate::robots::Robot;
+    use crate::RobotPosition;
     use rstest::*;
 
     #[rstest]
@@ -223,5 +233,46 @@ mod test {
     fn test_moving_left(#[case] input: Orientation, #[case] expected_orientation: Orientation) {
         let p = input.change_left();
         assert_eq!(p, expected_orientation)
+    }
+
+    #[rstest]
+    #[case(RobotCommands::Forward)]
+    fn test_processing_rob_commands_dont_move(#[case] input: RobotCommands) {
+        let robot = Robot::new_basic_robot();
+
+        let coordinate = Coordinates { x: 5, y: 3 };
+
+        let mut scent_tracker: HashSet<RobotPosition> = HashSet::new();
+
+        robot.position.add_scent(&mut scent_tracker);
+
+        let result = input.process(robot.position, &coordinate, &mut scent_tracker);
+        insta::assert_debug_snapshot!(result)
+    }
+
+    #[rstest]
+    #[case(RobotCommands::Forward)]
+    fn test_processing_rob_commands_fall_off_result(#[case] input: RobotCommands) {
+        let robot = Robot::new_basic_robot();
+
+        let coordinate = Coordinates { x: 1, y: 1 };
+
+        let mut scent_tracker: HashSet<RobotPosition> = HashSet::new();
+
+        let result = input.process(robot.position, &coordinate, &mut scent_tracker);
+        insta::assert_debug_snapshot!(result)
+    }
+
+    #[rstest]
+    #[case(RobotCommands::Forward)]
+    fn test_processing_rob_commands_fall_off_scent(#[case] input: RobotCommands) {
+        let robot = Robot::new_basic_robot();
+
+        let coordinate = Coordinates { x: 1, y: 1 };
+
+        let mut scent_tracker: HashSet<RobotPosition> = HashSet::new();
+
+        let result = input.process(robot.position, &coordinate, &mut scent_tracker);
+        insta::assert_debug_snapshot!(scent_tracker)
     }
 }

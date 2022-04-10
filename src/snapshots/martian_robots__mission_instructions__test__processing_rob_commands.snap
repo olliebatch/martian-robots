@@ -1,0 +1,15 @@
+---
+source: src/mission_instructions.rs
+assertion_line: 250
+expression: result
+---
+(
+    RobotPosition {
+        coordinates: Coordinates {
+            x: 1,
+            y: 1,
+        },
+        orientation: East,
+    },
+    Alive,
+)

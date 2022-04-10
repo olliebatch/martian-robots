@@ -1,0 +1,14 @@
+---
+source: src/mission_instructions.rs
+assertion_line: 276
+expression: scent_tracker
+---
+{
+    RobotPosition {
+        coordinates: Coordinates {
+            x: 1,
+            y: 1,
+        },
+        orientation: East,
+    },
+}
