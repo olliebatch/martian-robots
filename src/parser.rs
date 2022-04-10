@@ -6,7 +6,6 @@ use std::error;
 use std::str::{FromStr, Lines};
 
 pub fn parse_input_to_command(commands: &str) -> Result<Command, Box<dyn error::Error>> {
-    println!("{:?}", commands);
     let mut lines_of_instruction = commands.lines();
     //todo add a check here to actually check the number of lines etc
     let coords = lines_of_instruction.next();
@@ -57,8 +56,6 @@ fn generate_robots_from_strs(trimmed_strings: Vec<String>) -> Result<Vec<Robot>,
         for (index, robot_info) in chunk.into_iter().enumerate() {
             if index == 0 {
                 let info = robot_info.rsplit_once(' ').unwrap();
-
-                println!("{:?}", info);
                 let coordinates = Coordinates::from_str(info.0)?;
                 let orientation = Orientation::from_str(info.1)?;
                 let robot_position = RobotPosition {
