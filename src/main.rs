@@ -17,7 +17,7 @@ fn main() -> Result<(), Box<dyn error::Error>> {
 
     for robot in command.robots {
         let robot = robot.process_all_commands(&command.upper_right);
-        println!("{}", robot.position)
+        robot.end_of_mission_report()
     }
 
     Ok(())

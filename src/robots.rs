@@ -13,6 +13,15 @@ pub enum RobotStatus {
     Lost,
 }
 
+impl fmt::Display for RobotStatus {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            RobotStatus::Alive => write!(f, "{:}", "ALIVE"),
+            RobotStatus::Lost => write!(f, "{:}", "LOST"),
+        }
+    }
+}
+
 impl RobotPosition {
     pub fn update_orientation(self, orientation: Orientation) -> RobotPosition {
         RobotPosition {
@@ -140,6 +149,14 @@ impl Robot {
             self = self.process_robot_command(coordinate_limit);
         }
         self
+    }
+
+    pub fn end_of_mission_report(&self) {
+        if self.robot_status == RobotStatus::Lost {
+            println!("{} {}", self.position, self.robot_status)
+        } else {
+            println!("{}", self.position)
+        }
     }
 }
 
