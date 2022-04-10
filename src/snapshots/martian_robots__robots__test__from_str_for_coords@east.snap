@@ -1,12 +1,12 @@
 ---
 source: src/robots.rs
-assertion_line: 93
+assertion_line: 168
 expression: moved
 ---
 RobotPosition {
     coordinates: Coordinates {
-        x: 2,
-        y: 3,
+        x: 3,
+        y: 2,
     },
-    orientation: North,
+    orientation: East,
 }

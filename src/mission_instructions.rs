@@ -1,4 +1,4 @@
-use crate::robots::{Robot, RobotPosition};
+use crate::robots::{Robot, RobotPosition, RobotStatus};
 use anyhow::anyhow;
 use std::fmt;
 use std::str::FromStr;
@@ -112,24 +112,29 @@ impl RobotCommands {
         &self,
         robot_position: RobotPosition,
         coordinate_limit: &Coordinates,
-    ) -> RobotPosition {
+    ) -> (RobotPosition, RobotStatus) {
         match self {
             RobotCommands::Right => {
                 let new_orientation = robot_position.orientation.change_right();
-                robot_position.update_orientation(new_orientation)
+                (
+                    robot_position.update_orientation(new_orientation),
+                    RobotStatus::Alive,
+                )
             }
             RobotCommands::Left => {
                 let new_orientation = robot_position.orientation.change_left();
-                robot_position.update_orientation(new_orientation)
+                (
+                    robot_position.update_orientation(new_orientation),
+                    RobotStatus::Alive,
+                )
             }
             RobotCommands::Forward => {
                 let new_position = robot_position.move_forward();
                 let fallen_off_grid = new_position.coordinates.fallen_off_grid(coordinate_limit);
                 if fallen_off_grid {
-                    println!("Fallen off grid at {:?}", new_position);
-                    println!("old position: {:?}", robot_position)
+                    return (robot_position, RobotStatus::Lost);
                 }
-                new_position
+                (new_position, RobotStatus::Alive)
             }
         }
     }

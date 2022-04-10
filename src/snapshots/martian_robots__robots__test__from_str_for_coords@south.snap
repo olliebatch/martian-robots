@@ -1,6 +1,6 @@
 ---
 source: src/robots.rs
-assertion_line: 93
+assertion_line: 168
 expression: moved
 ---
 RobotPosition {

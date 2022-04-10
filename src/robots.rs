@@ -7,6 +7,12 @@ pub struct RobotPosition {
     pub orientation: Orientation,
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum RobotStatus {
+    Alive,
+    Lost,
+}
+
 impl RobotPosition {
     pub fn update_orientation(self, orientation: Orientation) -> RobotPosition {
         RobotPosition {
@@ -104,19 +110,33 @@ impl Robot {
         }
     }
 
-    pub fn process_robot_command(mut self, coordinate_limit: &Coordinates) -> Self {
+    pub fn process_robot_command(mut self, coordinate_limit: &Coordinates) -> (Self, RobotStatus) {
         let command = self.robot_commands.first().unwrap();
-        let new_position = command.process(self.position, coordinate_limit);
+        let (new_position, robot_status) = command.process(self.position, coordinate_limit);
         self.robot_commands.remove(0);
-        Robot {
-            position: new_position,
-            robot_commands: self.robot_commands,
-        }
+
+        (
+            Robot {
+                position: new_position,
+                robot_commands: self.robot_commands,
+            },
+            robot_status,
+        )
     }
 
     pub fn process_all_commands(mut self, coordinate_limit: &Coordinates) -> Self {
         while !self.robot_commands.is_empty() {
-            self = self.process_robot_command(coordinate_limit)
+            let (robot, robot_status) = self.process_robot_command(coordinate_limit);
+
+            self = robot;
+            match robot_status {
+                RobotStatus::Alive => {
+                    continue;
+                }
+                RobotStatus::Lost => {
+                    break;
+                }
+            }
         }
         self
     }
@@ -130,36 +150,47 @@ mod test {
     use rstest::*;
 
     #[rstest]
-    #[case(Orientation::North)]
-    #[case(Orientation::South)]
-    #[case(Orientation::West)]
-    #[case(Orientation::East)]
-    fn test_from_str_for_coords(#[case] orientation: Orientation) {
+    #[case(Orientation::North, "north")]
+    #[case(Orientation::South, "south")]
+    #[case(Orientation::West, "west")]
+    #[case(Orientation::East, "east")]
+    fn test_from_str_for_coords(#[case] orientation: Orientation, #[case] snapshot_suffix: &str) {
+        let mut settings = insta::Settings::new();
+        settings.set_snapshot_suffix(snapshot_suffix);
         let robot_position = RobotPosition {
             coordinates: Coordinates { x: 2, y: 2 },
             orientation,
         };
 
         let moved = robot_position.move_forward();
-        insta::assert_debug_snapshot!(moved)
+        settings.bind(|| {
+            // runs the assertion with the changed settings enabled
+            insta::assert_debug_snapshot!(moved)
+        });
     }
 
     #[rstest]
-    #[case(RobotCommands::Forward)]
-    #[case(RobotCommands::Left)]
-    #[case(RobotCommands::Right)]
-
-    fn test_single_rob_command(#[case] command: RobotCommands) {
+    #[case(RobotCommands::Forward, "test_single_rob_command_forward")]
+    #[case(RobotCommands::Left, "test_single_rob_command_left")]
+    #[case(RobotCommands::Right, "test_single_rob_command_right")]
+    fn test_single_rob_command(#[case] command: RobotCommands, #[case] snapshot_suffix: &str) {
+        let mut settings = insta::Settings::new();
+        settings.set_snapshot_suffix(snapshot_suffix);
         let robot = Robot::new();
+        let coordinates = Coordinates { x: 5, y: 3 };
         let robot_with_commands = robot.update_commands(vec![command]);
-        let processed_robot = robot_with_commands.process_robot_command();
-        insta::assert_debug_snapshot!(processed_robot)
+        let processed_robot = robot_with_commands.process_robot_command(&coordinates);
+        settings.bind(|| {
+            // runs the assertion with the changed settings enabled
+            insta::assert_debug_snapshot!(processed_robot)
+        });
     }
 
     #[test]
     fn test_process_all_commands() {
+        let coordinates = Coordinates { x: 5, y: 3 };
         let new_basic_robot = Robot::new_basic_robot();
-        let processed_robot = new_basic_robot.process_all_commands();
+        let processed_robot = new_basic_robot.process_all_commands(&coordinates);
         insta::assert_debug_snapshot!(processed_robot)
     }
 }

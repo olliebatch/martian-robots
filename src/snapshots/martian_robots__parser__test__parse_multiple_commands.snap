@@ -8,7 +8,7 @@ Command {
         x: 5,
         y: 3,
     },
-    robot_commands: [
+    robots: [
         Robot {
             position: RobotPosition {
                 coordinates: Coordinates {
