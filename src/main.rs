@@ -16,5 +16,8 @@ fn main() -> Result<(), Box<dyn error::Error>> {
     let command = parse_input_to_command(buffer.as_str())?;
     println!("{:?}", command);
 
+    let first_robot = command.robots[0].clone().process_all_commands();
+
+    println!("{:?}", first_robot);
     Ok(())
 }

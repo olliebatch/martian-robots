@@ -33,7 +33,7 @@ impl FromStr for Coordinates {
 #[derive(Debug, Clone, PartialEq)]
 pub struct Command {
     pub upper_right: Coordinates,
-    pub robot_commands: Vec<Robot>,
+    pub robots: Vec<Robot>,
 }
 
 #[derive(Debug, Clone, PartialEq)]

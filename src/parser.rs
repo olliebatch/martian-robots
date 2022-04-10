@@ -20,7 +20,7 @@ pub fn parse_input_to_command(commands: &str) -> Result<Command, Box<dyn error::
 
     let command = Command {
         upper_right: coordinates,
-        robot_commands: robots,
+        robots,
     };
 
     Ok(command)
