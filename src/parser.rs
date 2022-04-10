@@ -6,15 +6,17 @@ use std::error;
 use std::str::{FromStr, Lines};
 
 pub fn parse_input_to_command(commands: &str) -> Result<Command, Box<dyn error::Error>> {
+    println!("{:?}", commands);
     let mut lines_of_instruction = commands.lines();
     //todo add a check here to actually check the number of lines etc
     let coords = lines_of_instruction.next();
     // match until cover the lines so that can unwrap.
-    //todo add check here to ensure max value is not over 50
     let coordinates = match coords {
         None => Err(anyhow!("No Upper right point provided.")),
         Some(values) => Ok(Coordinates::from_str(values)?),
     }?;
+
+    coordinates.check_max_value()?;
 
     let robots = parse_robot_commands(lines_of_instruction)?;
 
@@ -39,12 +41,10 @@ fn remove_lines_and_whitespace(lines: Lines) -> Vec<String> {
     //todo if time how to handle a robot that's dropped with no movements?
     let mut removed_lines: Vec<String> = vec![];
     for line in lines {
-        let removed_whitespace: String = line.chars().filter(|c| !c.is_whitespace()).collect();
-
-        if removed_whitespace.is_empty() {
+        if line.is_empty() {
             // do nothing because it's an empty line.
         } else {
-            removed_lines.push(removed_whitespace)
+            removed_lines.push(line.to_string())
         }
     }
     removed_lines
@@ -56,8 +56,11 @@ fn generate_robots_from_strs(trimmed_strings: Vec<String>) -> Result<Vec<Robot>,
         let mut robot = Robot::new();
         for (index, robot_info) in chunk.into_iter().enumerate() {
             if index == 0 {
-                let coordinates = Coordinates::from_str(&robot_info[..2])?;
-                let orientation = Orientation::from_str(&robot_info[2..3])?;
+                let info = robot_info.rsplit_once(' ').unwrap();
+
+                println!("{:?}", info);
+                let coordinates = Coordinates::from_str(info.0)?;
+                let orientation = Orientation::from_str(info.1)?;
                 let robot_position = RobotPosition {
                     coordinates,
                     orientation,
@@ -86,9 +89,7 @@ mod test {
 
     #[test]
     fn test_parse_input_commands() {
-        let str = "5 3
-        3 2 N
-        FRRFLLFFRRFLL";
+        let str = "5 3\n3 2 N\nFRRFLLFFRRFLL";
 
         let robot_commands = parse_input_to_command(str).unwrap();
 
@@ -96,16 +97,17 @@ mod test {
     }
 
     #[test]
-    fn test_parse_multiple_commands() {
-        let str = "5 3
-        1 1 E
-        RFRFRFRF
+    fn test_error_over_50() {
+        let str = "51 51\n3 2 N\nFRRFLLFFRRFLL";
 
-        3 2 N
-        FRRFLLFFRRFLL
-        
-        0 3 W
-        LLFFFLFLFL";
+        let robot_commands = parse_input_to_command(str);
+
+        insta::assert_debug_snapshot!(robot_commands)
+    }
+
+    #[test]
+    fn test_parse_multiple_commands() {
+        let str = "5 3\n1 1 E\nRFRFRFRF\n\n3 2 N\nFRRFLLFFRRFLL\n\n0 3 W\nLLFFFLFLFL";
 
         let robot_commands = parse_input_to_command(str).unwrap();
 
@@ -114,9 +116,7 @@ mod test {
 
     #[test]
     fn test_parsing_robot_commands() {
-        let str = "
-        3 2 N
-        FRRFLLFFRRFLL";
+        let str = "3 2 N\nFRRFLLFFRRFLL";
         let lines = str.lines();
 
         let robot_commands = parse_robot_commands(lines).unwrap();
@@ -126,11 +126,7 @@ mod test {
 
     #[test]
     fn test_parsing_multiple_robot_commands() {
-        let str = "
-        1 1 E
-        RFRFRFRF
-        3 2 N
-        FRRFLLFFRRFLL";
+        let str = "1 1 E\nRFRFRFRF\n\n3 2 N\nFRRFLLFFRRFLL";
         let lines = str.lines();
 
         let robot_commands = parse_robot_commands(lines).unwrap();
@@ -140,27 +136,22 @@ mod test {
 
     #[test]
     fn test_remove_lines_and_whitespace_space_and_lines() {
-        let str = "
-        3 2 N
-
-        FRRFLLFFRRFLL";
+        let str = "3 2 N\nFRRFLLFFRRFLL";
         let lines = str.lines();
 
         let removed_lines = remove_lines_and_whitespace(lines);
-        let expected = vec!["32N".to_string(), "FRRFLLFFRRFLL".to_string()];
+        let expected = vec!["3 2 N".to_string(), "FRRFLLFFRRFLL".to_string()];
 
         assert_eq!(removed_lines, expected)
     }
 
     #[test]
     fn test_remove_lines_and_whitespace_no_lines() {
-        let str = "
-        3 2 N
-        FRRFLLFFRRFLL";
+        let str = "3 2 N\nFRRFLLFFRRFLL";
         let lines = str.lines();
 
         let removed_lines = remove_lines_and_whitespace(lines);
-        let expected = vec!["32N".to_string(), "FRRFLLFFRRFLL".to_string()];
+        let expected = vec!["3 2 N".to_string(), "FRRFLLFFRRFLL".to_string()];
 
         assert_eq!(removed_lines, expected)
     }
@@ -168,7 +159,7 @@ mod test {
     #[test]
     fn test_generate_robots_from_strs() {
         let robots =
-            generate_robots_from_strs(vec!["32N".to_string(), "FRRFLLFFRRFLL".to_string()])
+            generate_robots_from_strs(vec!["3 2 N".to_string(), "FRRFLLFFRRFLL".to_string()])
                 .unwrap();
 
         insta::assert_debug_snapshot!(robots)
@@ -177,9 +168,9 @@ mod test {
     #[test]
     fn test_generate_robots_from_strs_two_robots() {
         let robots = generate_robots_from_strs(vec![
-            "11E".to_string(),
+            "1 1 E".to_string(),
             "RFRFRFRF".to_string(),
-            "32N".to_string(),
+            "3 2 N".to_string(),
             "FRRFLLFFRRFLL".to_string(),
         ])
         .unwrap();

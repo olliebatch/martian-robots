@@ -1,0 +1,8 @@
+---
+source: src/parser.rs
+assertion_line: 107
+expression: robot_commands
+---
+Err(
+    "Grid provided is incorrect, 51, 51",
+)

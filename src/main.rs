@@ -7,15 +7,20 @@ use crate::robots::RobotPosition;
 use std::collections::HashSet;
 use std::error;
 use std::io::{self, Read};
+use std::str;
 
 fn main() -> Result<(), Box<dyn error::Error>> {
-    let mut buffer = String::new();
+    let mut buffer = vec![];
     let stdin = io::stdin();
     let mut handle = stdin.lock();
 
-    handle.read_to_string(&mut buffer)?;
+    handle.read_to_end(&mut buffer)?;
+    let string = match str::from_utf8(&buffer) {
+        Ok(v) => v,
+        Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+    };
 
-    let command = parse_input_to_command(buffer.as_str())?;
+    let command = parse_input_to_command(string)?;
 
     let mut scent_tracker: HashSet<RobotPosition> = HashSet::new();
 

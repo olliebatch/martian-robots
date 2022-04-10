@@ -19,6 +19,16 @@ impl Coordinates {
         }
         false
     }
+
+    pub fn check_max_value(&self) -> Result<(), anyhow::Error> {
+        if (self.x > 50 || self.x < 0) || (self.y > 50 || self.y < 0) {
+            return Err(anyhow!(format!(
+                "Grid provided is incorrect, {}, {}",
+                self.x, self.y
+            )));
+        }
+        Ok(())
+    }
 }
 
 impl FromStr for Coordinates {
@@ -26,15 +36,10 @@ impl FromStr for Coordinates {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         // remove any spaces if necessary
-        let coords: String = s.chars().filter(|c| !c.is_whitespace()).collect();
+        let mut coords = s.split(' ');
 
-        if coords.len() != 2 {
-            //handle nicer error
-            return Err(anyhow!("Too many characters for Coordinates"));
-        }
-        let mut chars = coords.chars();
-        let x_from_char = chars.next().unwrap().to_string().parse::<i32>()?;
-        let y_from_char = chars.next().unwrap().to_string().parse::<i32>()?;
+        let x_from_char = coords.next().unwrap().to_string().parse::<i32>()?;
+        let y_from_char = coords.next().unwrap().to_string().parse::<i32>()?;
 
         Ok(Coordinates {
             x: x_from_char,
@@ -172,9 +177,8 @@ mod test {
 
     #[rstest]
     #[case("1 2", 1, 2)]
-    #[case("12", 1, 2)]
     #[case("2 3", 2, 3)]
-    #[case("23", 2, 3)]
+    #[case("11 21", 11, 21)]
     fn test_from_str_for_coords(
         #[case] input: &str,
         #[case] expected_x: i32,
