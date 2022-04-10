@@ -1,4 +1,5 @@
 use crate::mission_instructions::{Coordinates, Orientation, RobotCommands};
+use std::fmt;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct RobotPosition {
@@ -37,6 +38,16 @@ impl RobotPosition {
             coordinates: new_coordinates,
             orientation: self.orientation,
         }
+    }
+}
+
+impl fmt::Display for RobotPosition {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{:} {:} {:}",
+            self.coordinates.x, self.coordinates.y, self.orientation
+        )
     }
 }
 
@@ -101,7 +112,6 @@ impl Robot {
             position: new_position,
             robot_commands: self.robot_commands,
         };
-        println!("robot update {:?}", robot_update);
         robot_update
     }
 

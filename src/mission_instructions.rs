@@ -1,5 +1,6 @@
 use crate::robots::{Robot, RobotPosition};
 use anyhow::anyhow;
+use std::fmt;
 use std::str::FromStr;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -42,6 +43,18 @@ pub enum Orientation {
     South,
     West,
     East,
+}
+
+impl fmt::Display for Orientation {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let val = match self {
+            Orientation::North => "N",
+            Orientation::South => "S",
+            Orientation::West => "W",
+            Orientation::East => "E",
+        };
+        write!(f, "{:}", val)
+    }
 }
 
 impl FromStr for Orientation {

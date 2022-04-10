@@ -14,10 +14,11 @@ fn main() -> Result<(), Box<dyn error::Error>> {
     handle.read_to_string(&mut buffer)?;
 
     let command = parse_input_to_command(buffer.as_str())?;
-    println!("{:?}", command);
 
-    let first_robot = command.robots[0].clone().process_all_commands();
+    for robot in command.robots {
+        let robot = robot.process_all_commands();
+        println!("{}", robot.position)
+    }
 
-    println!("{:?}", first_robot);
     Ok(())
 }
