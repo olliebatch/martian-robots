@@ -6,6 +6,40 @@ pub struct RobotPosition {
     pub orientation: Orientation,
 }
 
+impl RobotPosition {
+    pub fn update_orientation(self, orientation: Orientation) -> RobotPosition {
+        RobotPosition {
+            coordinates: self.coordinates,
+            orientation,
+        }
+    }
+
+    pub fn move_forward(self) -> RobotPosition {
+        let new_coordinates = match self.orientation {
+            Orientation::North => Coordinates {
+                x: self.coordinates.x,
+                y: self.coordinates.y + 1,
+            },
+            Orientation::South => Coordinates {
+                x: self.coordinates.x,
+                y: self.coordinates.y - 1,
+            },
+            Orientation::East => Coordinates {
+                x: self.coordinates.x + 1,
+                y: self.coordinates.y,
+            },
+            Orientation::West => Coordinates {
+                x: self.coordinates.x - 1,
+                y: self.coordinates.y,
+            },
+        };
+        RobotPosition {
+            coordinates: new_coordinates,
+            orientation: self.orientation,
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct Robot {
     pub position: RobotPosition,
@@ -34,5 +68,28 @@ impl Robot {
             position: self.position,
             robot_commands,
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+
+    use crate::mission_instructions::{Coordinates, Orientation};
+    use crate::robots::RobotPosition;
+    use rstest::*;
+
+    #[rstest]
+    #[case(Orientation::North)]
+    #[case(Orientation::South)]
+    #[case(Orientation::West)]
+    #[case(Orientation::East)]
+    fn test_from_str_for_coords(#[case] orientation: Orientation) {
+        let robot_position = RobotPosition {
+            coordinates: Coordinates { x: 2, y: 2 },
+            orientation,
+        };
+
+        let moved = robot_position.move_forward();
+        insta::assert_debug_snapshot!(moved)
     }
 }

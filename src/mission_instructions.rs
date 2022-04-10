@@ -57,6 +57,24 @@ impl FromStr for Orientation {
         }
     }
 }
+impl Orientation {
+    pub fn change_right(&self) -> Self {
+        match self {
+            Orientation::North => Orientation::East,
+            Orientation::East => Orientation::South,
+            Orientation::South => Orientation::West,
+            Orientation::West => Orientation::North,
+        }
+    }
+    pub fn change_left(&self) -> Self {
+        match self {
+            Orientation::North => Orientation::West,
+            Orientation::East => Orientation::North,
+            Orientation::South => Orientation::East,
+            Orientation::West => Orientation::South,
+        }
+    }
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum RobotCommands {
@@ -129,5 +147,24 @@ mod test {
         let command = RobotCommands::from_str(input);
 
         assert_eq!(command.unwrap(), expected_command);
+    }
+
+    #[rstest]
+    #[case(Orientation::North, Orientation::East)]
+    #[case(Orientation::South, Orientation::West)]
+    #[case(Orientation::East, Orientation::South)]
+    #[case(Orientation::West, Orientation::North)]
+    fn test_moving_right(#[case] input: Orientation, #[case] expected_orientation: Orientation) {
+        let p = input.change_right();
+        assert_eq!(p, expected_orientation)
+    }
+    #[rstest]
+    #[case(Orientation::North, Orientation::West)]
+    #[case(Orientation::South, Orientation::East)]
+    #[case(Orientation::East, Orientation::North)]
+    #[case(Orientation::West, Orientation::South)]
+    fn test_moving_left(#[case] input: Orientation, #[case] expected_orientation: Orientation) {
+        let p = input.change_left();
+        assert_eq!(p, expected_orientation)
     }
 }
