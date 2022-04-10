@@ -15,7 +15,7 @@ impl RobotPosition {
         }
     }
 
-    pub fn move_forward(self) -> RobotPosition {
+    pub fn move_forward(&self) -> Self {
         let new_coordinates = match self.orientation {
             Orientation::North => Coordinates {
                 x: self.coordinates.x,
@@ -36,7 +36,7 @@ impl RobotPosition {
         };
         RobotPosition {
             coordinates: new_coordinates,
-            orientation: self.orientation,
+            orientation: self.orientation.to_owned(),
         }
     }
 }
@@ -104,20 +104,19 @@ impl Robot {
         }
     }
 
-    pub fn process_robot_command(mut self) -> Self {
+    pub fn process_robot_command(mut self, coordinate_limit: &Coordinates) -> Self {
         let command = self.robot_commands.first().unwrap();
-        let new_position = command.process(self.position);
+        let new_position = command.process(self.position, coordinate_limit);
         self.robot_commands.remove(0);
-        let robot_update = Robot {
+        Robot {
             position: new_position,
             robot_commands: self.robot_commands,
-        };
-        robot_update
+        }
     }
 
-    pub fn process_all_commands(mut self) -> Self {
+    pub fn process_all_commands(mut self, coordinate_limit: &Coordinates) -> Self {
         while !self.robot_commands.is_empty() {
-            self = self.process_robot_command()
+            self = self.process_robot_command(coordinate_limit)
         }
         self
     }

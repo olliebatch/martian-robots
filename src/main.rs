@@ -16,7 +16,7 @@ fn main() -> Result<(), Box<dyn error::Error>> {
     let command = parse_input_to_command(buffer.as_str())?;
 
     for robot in command.robots {
-        let robot = robot.process_all_commands();
+        let robot = robot.process_all_commands(&command.upper_right);
         println!("{}", robot.position)
     }
 

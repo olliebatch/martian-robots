@@ -9,6 +9,17 @@ pub struct Coordinates {
     pub y: i32,
 }
 
+impl Coordinates {
+    pub fn fallen_off_grid(&self, coordinate_limit: &Coordinates) -> bool {
+        if (self.x < 0 || self.x > coordinate_limit.x)
+            || (self.y < 0 || self.y > coordinate_limit.y)
+        {
+            return true;
+        }
+        false
+    }
+}
+
 impl FromStr for Coordinates {
     type Err = anyhow::Error;
 
@@ -97,7 +108,11 @@ pub enum RobotCommands {
 }
 
 impl RobotCommands {
-    pub fn process(&self, robot_position: RobotPosition) -> RobotPosition {
+    pub fn process(
+        &self,
+        robot_position: RobotPosition,
+        coordinate_limit: &Coordinates,
+    ) -> RobotPosition {
         match self {
             RobotCommands::Right => {
                 let new_orientation = robot_position.orientation.change_right();
@@ -107,7 +122,15 @@ impl RobotCommands {
                 let new_orientation = robot_position.orientation.change_left();
                 robot_position.update_orientation(new_orientation)
             }
-            RobotCommands::Forward => robot_position.move_forward(),
+            RobotCommands::Forward => {
+                let new_position = robot_position.move_forward();
+                let fallen_off_grid = new_position.coordinates.fallen_off_grid(coordinate_limit);
+                if fallen_off_grid {
+                    println!("Fallen off grid at {:?}", new_position);
+                    println!("old position: {:?}", robot_position)
+                }
+                new_position
+            }
         }
     }
 }
