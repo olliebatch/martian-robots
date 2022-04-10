@@ -25,3 +25,4 @@ Some nicer handling with wrong input commands.
 Some Enum based errors for rust
 Check on other rover positions. E.G is the rover still on the grid after its moved?
 Individual processing. Currently these robots are tied together if you give a bad command for one then it will affect all of them.
+Handle robots that aren't dropped with any movements.

@@ -7,7 +7,6 @@ use std::str::{FromStr, Lines};
 
 pub fn parse_input_to_command(commands: &str) -> Result<Command, Box<dyn error::Error>> {
     let mut lines_of_instruction = commands.lines();
-    //todo add a check here to actually check the number of lines etc
     let coords = lines_of_instruction.next();
     // match until cover the lines so that can unwrap.
     let coordinates = match coords {
@@ -37,7 +36,6 @@ fn parse_robot_commands(lines: Lines) -> Result<Vec<Robot>, anyhow::Error> {
 }
 
 fn remove_lines_and_whitespace(lines: Lines) -> Vec<String> {
-    //todo if time how to handle a robot that's dropped with no movements?
     let mut removed_lines: Vec<String> = vec![];
     for line in lines {
         if line.is_empty() {
