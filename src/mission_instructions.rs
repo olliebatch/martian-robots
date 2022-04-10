@@ -7,6 +7,12 @@ pub struct Coordinates {
     y: i32,
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct RobotPosition {
+    pub coordinates: Coordinates,
+    pub orientation: Orientation,
+}
+
 impl FromStr for Coordinates {
     type Err = anyhow::Error;
 
@@ -37,7 +43,7 @@ pub struct Command {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct RobotInfo {
-    pub start_position: (Coordinates, Orientation),
+    pub start_position: RobotPosition,
     pub robot_commands: RobotCommands,
 }
 
@@ -48,6 +54,20 @@ pub enum Orientation {
     West,
     East,
 }
+
+impl FromStr for Orientation {
+    type Err = anyhow::Error;
+
+    fn from_str(input: &str) -> Result<Self, Self::Err> {
+        match input {
+            "N" => Ok(Orientation::North),
+            "S" => Ok(Orientation::South),
+            "W" => Ok(Orientation::West),
+            "E" => Ok(Orientation::East),
+            _ => Err(anyhow!("Error matching orientation")),
+        }
+    }
+}
 #[derive(Debug, Clone, PartialEq)]
 pub enum RobotCommands {
     Left,
@@ -57,7 +77,9 @@ pub enum RobotCommands {
 
 #[cfg(test)]
 mod test {
-    use crate::mission_instructions::Coordinates;
+    use crate::mission_instructions::{Coordinates, Orientation};
+    use anyhow::anyhow;
+    use assert_matches::assert_matches;
     use std::str::FromStr;
 
     use rstest::*;
@@ -80,5 +102,21 @@ mod test {
                 y: expected_y
             }
         )
+    }
+
+    #[rstest]
+    #[case("N", Orientation::North)]
+    #[case("W", Orientation::West)]
+    #[case("E", Orientation::East)]
+    #[case("S", Orientation::South)]
+    fn test_orientation_from_str(#[case] input: &str, #[case] expected_orientation: Orientation) {
+        let p = Orientation::from_str(input);
+        assert_eq!(p.unwrap(), expected_orientation)
+    }
+
+    #[test]
+    fn test_orientation_err_from_str() {
+        let p = Orientation::from_str("Y");
+        assert!(p.is_err())
     }
 }
