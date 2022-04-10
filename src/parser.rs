@@ -1,12 +1,12 @@
 use crate::mission_instructions::{
-    Coordinates, Orientation, RobotCommands, RobotInfo, RobotPosition,
+    Command, Coordinates, Orientation, RobotCommands, RobotInfo, RobotPosition,
 };
 use anyhow::anyhow;
 use itertools::Itertools;
 use std::error;
 use std::str::{FromStr, Lines};
 
-fn parse_input_to_command(commands: &str) -> Result<(), Box<dyn error::Error>> {
+pub fn parse_input_to_command(commands: &str) -> Result<Command, Box<dyn error::Error>> {
     let mut lines_of_instruction = commands.lines();
     //todo add a check here to actually check the number of lines etc
     let coords = lines_of_instruction.next();
@@ -17,7 +17,14 @@ fn parse_input_to_command(commands: &str) -> Result<(), Box<dyn error::Error>> {
         Some(values) => Ok(Coordinates::from_str(values)?),
     }?;
 
-    Ok(())
+    let robots = parse_robot_commands(lines_of_instruction)?;
+
+    let command = Command {
+        upper_right: coordinates,
+        robot_commands: robots,
+    };
+
+    Ok(command)
 }
 
 fn parse_robot_commands(lines: Lines) -> Result<Vec<RobotInfo>, anyhow::Error> {
@@ -76,8 +83,37 @@ fn generate_robots_from_strs(
 #[cfg(test)]
 mod test {
     use crate::parser::{
-        generate_robots_from_strs, parse_robot_commands, remove_lines_and_whitespace,
+        generate_robots_from_strs, parse_input_to_command, parse_robot_commands,
+        remove_lines_and_whitespace,
     };
+
+    #[test]
+    fn test_parse_input_commands() {
+        let str = "5 3
+        3 2 N
+        FRRFLLFFRRFLL";
+
+        let robot_commands = parse_input_to_command(str).unwrap();
+
+        insta::assert_debug_snapshot!(robot_commands)
+    }
+
+    #[test]
+    fn test_parse_multiple_commands() {
+        let str = "5 3
+        1 1 E
+        RFRFRFRF
+
+        3 2 N
+        FRRFLLFFRRFLL
+        
+        0 3 W
+        LLFFFLFLFL";
+
+        let robot_commands = parse_input_to_command(str).unwrap();
+
+        insta::assert_debug_snapshot!(robot_commands)
+    }
 
     #[test]
     fn test_parsing_robot_commands() {

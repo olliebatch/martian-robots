@@ -1,16 +1,19 @@
 mod mission_instructions;
 mod parser;
 
+use crate::parser::parse_input_to_command;
+use std::error;
 use std::io::{self, Read};
 
-fn main() -> Result<(), anyhow::Error> {
+fn main() -> Result<(), Box<dyn error::Error>> {
     let mut buffer = String::new();
     let stdin = io::stdin();
     let mut handle = stdin.lock();
 
     handle.read_to_string(&mut buffer)?;
 
-    println!("{}", buffer);
+    let command = parse_input_to_command(buffer.as_str())?;
+    println!("{:?}", command);
 
     Ok(())
 }
