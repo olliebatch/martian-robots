@@ -4,6 +4,7 @@ mod robots;
 
 use crate::parser::parse_input_to_command;
 use crate::robots::RobotPosition;
+use anyhow::anyhow;
 use std::collections::HashSet;
 use std::error;
 use std::io::{self, Read};
@@ -16,9 +17,9 @@ fn main() -> Result<(), Box<dyn error::Error>> {
 
     handle.read_to_end(&mut buffer)?;
     let string = match str::from_utf8(&buffer) {
-        Ok(v) => v,
-        Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
-    };
+        Ok(v) => Ok(v),
+        Err(e) => Err(anyhow!("Invalid UTF-8 sequence: {}", e)),
+    }?;
 
     let command = parse_input_to_command(string)?;
 
