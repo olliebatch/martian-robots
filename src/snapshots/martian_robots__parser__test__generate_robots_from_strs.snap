@@ -1,11 +1,11 @@
 ---
 source: src/parser.rs
-assertion_line: 132
+assertion_line: 174
 expression: robots
 ---
 [
-    RobotInfo {
-        start_position: RobotPosition {
+    Robot {
+        position: RobotPosition {
             coordinates: Coordinates {
                 x: 3,
                 y: 2,

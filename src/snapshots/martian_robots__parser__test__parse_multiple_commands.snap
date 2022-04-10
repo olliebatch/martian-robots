@@ -1,6 +1,6 @@
 ---
 source: src/parser.rs
-assertion_line: 117
+assertion_line: 112
 expression: robot_commands
 ---
 Command {
@@ -9,8 +9,8 @@ Command {
         y: 3,
     },
     robot_commands: [
-        RobotInfo {
-            start_position: RobotPosition {
+        Robot {
+            position: RobotPosition {
                 coordinates: Coordinates {
                     x: 1,
                     y: 1,
@@ -28,8 +28,8 @@ Command {
                 Forward,
             ],
         },
-        RobotInfo {
-            start_position: RobotPosition {
+        Robot {
+            position: RobotPosition {
                 coordinates: Coordinates {
                     x: 3,
                     y: 2,
@@ -52,8 +52,8 @@ Command {
                 Left,
             ],
         },
-        RobotInfo {
-            start_position: RobotPosition {
+        Robot {
+            position: RobotPosition {
                 coordinates: Coordinates {
                     x: 0,
                     y: 3,

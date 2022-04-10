@@ -1,11 +1,11 @@
 ---
 source: src/parser.rs
-assertion_line: 105
+assertion_line: 138
 expression: robot_commands
 ---
 [
-    RobotInfo {
-        start_position: RobotPosition {
+    Robot {
+        position: RobotPosition {
             coordinates: Coordinates {
                 x: 1,
                 y: 1,
@@ -23,8 +23,8 @@ expression: robot_commands
             Forward,
         ],
     },
-    RobotInfo {
-        start_position: RobotPosition {
+    Robot {
+        position: RobotPosition {
             coordinates: Coordinates {
                 x: 3,
                 y: 2,

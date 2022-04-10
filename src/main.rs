@@ -1,5 +1,6 @@
 mod mission_instructions;
 mod parser;
+mod robots;
 
 use crate::parser::parse_input_to_command;
 use std::error;

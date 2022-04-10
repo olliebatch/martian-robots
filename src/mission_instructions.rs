@@ -1,3 +1,4 @@
+use crate::robots::Robot;
 use anyhow::anyhow;
 use std::str::FromStr;
 
@@ -5,12 +6,6 @@ use std::str::FromStr;
 pub struct Coordinates {
     pub x: i32,
     pub y: i32,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct RobotPosition {
-    pub coordinates: Coordinates,
-    pub orientation: Orientation,
 }
 
 impl FromStr for Coordinates {
@@ -38,38 +33,7 @@ impl FromStr for Coordinates {
 #[derive(Debug, Clone, PartialEq)]
 pub struct Command {
     pub upper_right: Coordinates,
-    pub robot_commands: Vec<RobotInfo>,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct RobotInfo {
-    pub start_position: RobotPosition,
-    pub robot_commands: Vec<RobotCommands>,
-}
-
-impl RobotInfo {
-    pub fn new() -> Self {
-        RobotInfo {
-            start_position: RobotPosition {
-                coordinates: Coordinates { x: 0, y: 0 },
-                orientation: Orientation::North,
-            },
-            robot_commands: vec![],
-        }
-    }
-
-    pub fn set_start_position(self, robot_position: RobotPosition) -> Self {
-        RobotInfo {
-            start_position: robot_position,
-            robot_commands: self.robot_commands,
-        }
-    }
-    pub fn update_commands(self, robot_commands: Vec<RobotCommands>) -> Self {
-        RobotInfo {
-            start_position: self.start_position,
-            robot_commands,
-        }
-    }
+    pub robot_commands: Vec<Robot>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -93,6 +57,7 @@ impl FromStr for Orientation {
         }
     }
 }
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum RobotCommands {
     Left,
@@ -116,8 +81,6 @@ impl FromStr for RobotCommands {
 #[cfg(test)]
 mod test {
     use crate::mission_instructions::{Coordinates, Orientation, RobotCommands};
-    use anyhow::anyhow;
-    use assert_matches::assert_matches;
     use std::str::FromStr;
 
     use rstest::*;

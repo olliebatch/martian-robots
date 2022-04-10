@@ -1,6 +1,5 @@
-use crate::mission_instructions::{
-    Command, Coordinates, Orientation, RobotCommands, RobotInfo, RobotPosition,
-};
+use crate::mission_instructions::{Command, Coordinates, Orientation, RobotCommands};
+use crate::robots::{Robot, RobotPosition};
 use anyhow::anyhow;
 use itertools::Itertools;
 use std::error;
@@ -27,7 +26,7 @@ pub fn parse_input_to_command(commands: &str) -> Result<Command, Box<dyn error::
     Ok(command)
 }
 
-fn parse_robot_commands(lines: Lines) -> Result<Vec<RobotInfo>, anyhow::Error> {
+fn parse_robot_commands(lines: Lines) -> Result<Vec<Robot>, anyhow::Error> {
     let trimmed_lines = remove_lines_and_whitespace(lines);
 
     // assume current structure will stay the same with 2 lines = one robot
@@ -51,12 +50,10 @@ fn remove_lines_and_whitespace(lines: Lines) -> Vec<String> {
     removed_lines
 }
 
-fn generate_robots_from_strs(
-    trimmed_strings: Vec<String>,
-) -> Result<Vec<RobotInfo>, anyhow::Error> {
+fn generate_robots_from_strs(trimmed_strings: Vec<String>) -> Result<Vec<Robot>, anyhow::Error> {
     let mut robots = vec![];
     for chunk in &trimmed_strings.into_iter().chunks(2) {
-        let mut robot = RobotInfo::new();
+        let mut robot = Robot::new();
         for (index, robot_info) in chunk.into_iter().enumerate() {
             if index == 0 {
                 let coordinates = Coordinates::from_str(&robot_info[..2])?;
